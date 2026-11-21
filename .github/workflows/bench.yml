@@ -1,0 +1,53 @@
+name: Benchmark
+
+on:
+  workflow_dispatch:
+    inputs:
+      runs:
+        description: Measured runs per corpus
+        default: "5"
+      lafke-version:
+        description: lafke release tag to measure, such as v0.1.0 (empty for the latest)
+        default: ""
+  schedule:
+    - cron: "0 3 * * 1" # Mondays, 03:00 UTC
+  push:
+    branches: [main]
+    paths:
+      - cmd/**
+      - corpora.json
+      - go.*
+      - .github/workflows/bench.yml
+
+permissions:
+  contents: read
+
+jobs:
+  bench:
+    name: Measure lafke
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+      - name: Install lafke and the engine
+        env:
+          GH_TOKEN: ${{ github.token }} # the installer verifies the release attestation with gh
+          INSTALL_DIR: ${{ runner.temp }}/lafke-bin
+          VERSION: ${{ inputs.lafke-version }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$INSTALL_DIR"
+          curl -fsSL https://lafke.sh/install | sh
+          echo "$INSTALL_DIR" >> "$GITHUB_PATH"
+      - name: Run the benchmark
+        env:
+          RUNS: ${{ inputs.runs || '5' }}
+        run: go run ./cmd/bench -runs "$RUNS" -out results
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: benchmark-results
+          path: results/*.json
+          if-no-files-found: error
