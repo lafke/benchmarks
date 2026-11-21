@@ -74,6 +74,7 @@ func run() error {
 	unitTimeout := flag.Duration("unit-timeout", 10*time.Minute, "give up on one lafke run after this long; the unit then has no findings")
 	out := flag.String("out", "results", "directory for the JSON result")
 	merge := flag.String("merge", "", "merge the JSON results in this directory into one job summary and exit")
+	summary := flag.Bool("summary", true, "append the results to the GitHub Actions job summary (GITHUB_STEP_SUMMARY)")
 	list := flag.Bool("list", false, "print the corpus names as a JSON array and exit")
 	var only multiFlag
 	flag.Var(&only, "only", "run only this corpus (repeatable)")
@@ -248,5 +249,8 @@ func run() error {
 		return err
 	}
 	fmt.Println(path)
+	if !*summary {
+		return nil
+	}
 	return writeSummary([]result{res})
 }
