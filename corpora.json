@@ -5,14 +5,54 @@
       "repo": "https://github.com/OWASP-Benchmark/BenchmarkJava.git",
       "rev": "acc50f20ec449e2b977a7c409fa8175491657cba",
       "path": "src/main",
-      "command": ["sast"]
+      "command": [
+        "sast"
+      ],
+      "labels": {
+        "file": "expectedresults-1.2.csv",
+        "categories": {
+          "cmdi": "sast:java/command-injection",
+          "crypto": "sast:java/weak-crypto",
+          "hash": "sast:java/weak-crypto",
+          "ldapi": "sast:java/ldap-injection",
+          "pathtraver": "sast:java/path-traversal",
+          "securecookie": "sast:java/insecure-cookie",
+          "sqli": "sast:java/sql-injection",
+          "trustbound": "sast:java/trust-boundary",
+          "weakrand": "sast:java/insecure-random",
+          "xpathi": "sast:java/xpath-injection",
+          "xss": "sast:java/xss"
+        }
+      }
     },
     {
       "name": "owasp-benchmark-python",
       "repo": "https://github.com/OWASP-Benchmark/BenchmarkPython.git",
       "rev": "f1291485808b66e20ddb6b01b10dc71b3df8c8ba",
       "path": ".",
-      "command": ["sast"]
+      "command": [
+        "sast"
+      ],
+      "labels": {
+        "file": "expectedresults-0.1.csv",
+        "categories": {
+          "cmdi": "sast:py/command-injection",
+          "codeinj": "sast:py/code-injection",
+          "crypto": "sast:py/weak-crypto",
+          "deserialization": "sast:py/insecure-deserialization",
+          "hash": "sast:py/weak-crypto",
+          "ldapi": "sast:py/ldap-injection",
+          "pathtraver": "sast:py/path-traversal",
+          "redirect": "sast:py/open-redirect",
+          "securecookie": "sast:py/insecure-cookie",
+          "sqli": "sast:py/sql-injection",
+          "trustbound": "sast:py/trust-boundary",
+          "weakrand": "sast:py/insecure-random",
+          "xpathi": "sast:py/xpath-injection",
+          "xss": "sast:py/xss",
+          "xxe": "sast:py/xxe"
+        }
+      }
     }
   ]
 }

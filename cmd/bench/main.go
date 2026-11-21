@@ -6,6 +6,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -24,6 +25,7 @@ type corpus struct {
 	Rev     string   `json:"rev"`
 	Path    string   `json:"path"`
 	Command []string `json:"command"`
+	Labels  *labels  `json:"labels,omitempty"`
 }
 
 type stats struct {
@@ -34,13 +36,14 @@ type stats struct {
 }
 
 type corpusResult struct {
-	Name    string               `json:"name"`
-	Repo    string               `json:"repo"`
-	Rev     string               `json:"rev"`
-	Command []string             `json:"command"`
-	Wall    stats                `json:"wall_seconds"`
-	RSS     stats                `json:"peak_rss_mib"`
-	Samples map[string][]float64 `json:"samples"`
+	Name     string               `json:"name"`
+	Repo     string               `json:"repo"`
+	Rev      string               `json:"rev"`
+	Command  []string             `json:"command"`
+	Wall     stats                `json:"wall_seconds"`
+	RSS      stats                `json:"peak_rss_mib"`
+	Accuracy *accuracy            `json:"accuracy,omitempty"`
+	Samples  map[string][]float64 `json:"samples"`
 }
 
 type environment struct {
@@ -122,12 +125,21 @@ func run() error {
 		}
 		args := append(slices.Clone(c.Command), filepath.Join(src, c.Path), "--format", "json", "--fail-on", "critical")
 		fmt.Fprintf(os.Stderr, "%s: warm-up\n", c.Name)
-		if _, _, err := measure(*lafke, args); err != nil {
+		_, _, report, err := measure(*lafke, args, c.Labels != nil)
+		if err != nil {
 			return fmt.Errorf("%s: %w", c.Name, err)
+		}
+		var acc *accuracy
+		if c.Labels != nil {
+			if acc, err = score(src, c.Labels, report); err != nil {
+				return fmt.Errorf("%s: %w", c.Name, err)
+			}
+			fmt.Fprintf(os.Stderr, "%s: TP %d FP %d FN %d TN %d, recall %.2f%%, precision %.2f%%, F1 %.2f%%\n",
+				c.Name, acc.TP, acc.FP, acc.FN, acc.TN, 100*acc.Recall, 100*acc.Precision, 100*acc.F1)
 		}
 		var walls, rsss []float64
 		for i := 1; i <= *runs; i++ {
-			wall, rss, err := measure(*lafke, args)
+			wall, rss, _, err := measure(*lafke, args, false)
 			if err != nil {
 				return fmt.Errorf("%s: %w", c.Name, err)
 			}
@@ -137,7 +149,7 @@ func run() error {
 		res.Corpora = append(res.Corpora, corpusResult{
 			Name: c.Name, Repo: c.Repo, Rev: c.Rev,
 			Command: append([]string{*lafke}, c.Command...),
-			Wall:    summarize(walls), RSS: summarize(rsss),
+			Wall:    summarize(walls), RSS: summarize(rsss), Accuracy: acc,
 			Samples: map[string][]float64{"wall_seconds": walls, "peak_rss_mib": rsss},
 		})
 	}
@@ -208,10 +220,15 @@ func fetch(c corpus, cache string) (string, error) {
 	return dest, nil
 }
 
-// measure runs lafke once and returns its wall time in seconds and peak memory in MiB.
-// Exit code 1 means findings and counts as success; any other failure is an error.
-func measure(lafke string, args []string) (float64, float64, error) {
+// measure runs lafke once and returns its wall time in seconds and peak memory in MiB, and its
+// output when capture is set. Exit code 1 means findings and counts as success; any other
+// failure is an error.
+func measure(lafke string, args []string, capture bool) (float64, float64, []byte, error) {
 	cmd := exec.Command(lafke, args...)
+	var out bytes.Buffer
+	if capture {
+		cmd.Stdout = &out
+	}
 	start := time.Now()
 	err := cmd.Run()
 	wall := time.Since(start).Seconds()
@@ -219,7 +236,7 @@ func measure(lafke string, args []string) (float64, float64, error) {
 		err = nil
 	}
 	if err != nil {
-		return 0, 0, fmt.Errorf("lafke %s: %w", strings.Join(args, " "), err)
+		return 0, 0, nil, fmt.Errorf("lafke %s: %w", strings.Join(args, " "), err)
 	}
-	return wall, peakRSSMiB(cmd.ProcessState), nil
+	return wall, peakRSSMiB(cmd.ProcessState), out.Bytes(), nil
 }
