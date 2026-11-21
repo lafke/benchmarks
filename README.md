@@ -9,17 +9,17 @@ fast run says nothing about how many vulnerabilities were found.
 
 ## Reproduce
 
-You need Python 3.9 or later, `git`, and `lafke` with an engine installed
-(`curl -fsSL https://lafke.sh/install | sh`).
+You need Go (the version in [`go.mod`](go.mod)), `git`, and `lafke` with an engine installed
+(`curl -fsSL https://lafke.sh/install | sh`). Run the commands from the repository root.
 
 ```sh
-python3 scripts/bench.py                  # 1 warm-up and 5 measured runs per corpus
-python3 scripts/bench.py --runs 10        # more runs
-python3 scripts/bench.py --only owasp-benchmark-java
-python3 scripts/bench.py --lafke ./lafke  # a specific executable
+go run ./cmd/bench                          # 1 warm-up and 5 measured runs per corpus
+go run ./cmd/bench -runs 10                 # more runs
+go run ./cmd/bench -only owasp-benchmark-java
+go run ./cmd/bench -lafke ./lafke           # a specific executable
 ```
 
-The script clones each corpus into `.cache/` at the revision in [`corpora.json`](corpora.json),
+The program clones each corpus into `.cache/` at the revision in [`corpora.json`](corpora.json),
 fails if the checkout does not match it, and writes a JSON result to `results/`.
 
 ## Corpora
@@ -29,7 +29,7 @@ fails if the checkout does not match it, and writes a JSON result to `results/`.
 | `owasp-benchmark-java` | [BenchmarkJava](https://github.com/OWASP-Benchmark/BenchmarkJava) | `acc50f20ec44` | `src/main` |
 | `owasp-benchmark-python` | [BenchmarkPython](https://github.com/OWASP-Benchmark/BenchmarkPython) | `f1291485808b` | repository root |
 
-The corpora are downloaded when you run the script. Their source is not copied here and keeps
+The corpora are downloaded when you run the program. Their source is not copied here and keeps
 its own license.
 
 ## Method
@@ -40,7 +40,8 @@ its own license.
 - **Wall time** is the elapsed time of the whole command, including starting the engine.
 - **Peak memory** is the maximum resident set size of `lafke` and the processes it started.
 - The result records min, median, mean and standard deviation, every raw sample, and the
-  environment: OS, architecture, CPU count, Python, `lafke` and engine versions.
+  environment: OS, architecture, CPU count, Go, `lafke` and engine versions.
+- Peak memory is not measured on Windows; it is reported as 0.
 
 ## Reading results
 
@@ -51,13 +52,13 @@ its own license.
   machine, and publish the command you used.
 
 Results depend on the machine, so this repository does not commit any. Add yours to an issue
-or a pull request as the JSON file the script wrote.
+or a pull request as the JSON file the program wrote.
 
 ## Adding a corpus
 
 Add an entry to [`corpora.json`](corpora.json) with the repository URL, the full 40-character
 commit hash (never a branch or tag), the path to analyze, and the `lafke` command. Then run the
-script once to check that it works.
+program once to check that it works.
 
 ## License
 

@@ -12,7 +12,7 @@ peak memory on public source code pinned to an exact commit. This repository is 
 
 - `corpora.json`: the corpora, each with a repository URL, a full commit hash, a path and a
   `lafke` command.
-- `scripts/bench.py`: clones the corpora, runs `lafke`, writes JSON to `results/`.
+- `cmd/bench`: clones the corpora, runs `lafke`, writes JSON to `results/`.
 - `README.md`: how to reproduce, the method, how to read results.
 
 ## Rules
@@ -25,10 +25,11 @@ peak memory on public source code pinned to an exact commit. This repository is 
   machine, the `lafke` and engine versions, and the number of runs next to any figure.
 - Do not claim another tool is slower or faster without the command, the version and the
   machine used for both.
-- Keep the method in `README.md` in sync with `scripts/bench.py`.
-- Use only the Python standard library in `scripts/bench.py`, and keep it Python 3.9 compatible.
-- Run `python3 scripts/bench.py --runs 1` before committing a change to the script, and say so
-  if it cannot run.
+- Keep the method in `README.md` in sync with `cmd/bench`.
+- Use only the Go standard library, with no CGO.
+- Before committing a change to `cmd/bench`, run `gofmt -l .` (must print nothing),
+  `go vet ./...`, `GOOS=windows go vet ./...` and `go run ./cmd/bench -runs 1`. Say so if one
+  cannot run.
 - Write the name `Lafke` with a capital L in prose, and lowercase `lafke` only for code,
   commands, package names and URLs.
 - Code, comments, commit messages, and everything published to GitHub are in English.
