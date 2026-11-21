@@ -5,14 +5,16 @@ disagrees with this file, the user wins.
 
 ## Project
 
-Reproducible performance benchmarks for the `lafke` CLI and its analysis engine: wall time and
-peak memory on public source code pinned to an exact commit. This repository is public.
+Reproducible benchmarks for the `lafke` CLI and its analysis engine: wall time, peak memory and
+detection accuracy (TP, FP, FN, TN, recall, precision, F1) on public source code pinned to an exact
+commit. This repository is public.
 
 ## Layout
 
-- `corpora.json`: the corpora, each with a repository URL, a full commit hash, a path and a
-  `lafke` command.
-- `cmd/bench`: clones the corpora, runs `lafke`, writes JSON to `results/`.
+- `corpora.json`: the corpora, each with a repository URL, a full commit hash, a path, a `lafke`
+  command and, for accuracy, the labels file and the rule of each category.
+- `cmd/bench`: clones the corpora, runs `lafke`, scores the findings against the labels, writes
+  JSON to `results/` and a table to the Actions job summary.
 - `README.md`: how to reproduce, the method, how to read results.
 
 ## Rules
@@ -23,6 +25,9 @@ peak memory on public source code pinned to an exact commit. This repository is 
 - Do not copy corpus source into this repository; it is cloned at run time.
 - Do not commit measured numbers from one machine as if they were a reference. State the
   machine, the `lafke` and engine versions, and the number of runs next to any figure.
+- Present accuracy only with its caveats: the suites are synthetic and Lafke is developed against
+  them, so the scores are not a held-out evaluation. Never describe them as parity with, or a
+  ranking against, another tool.
 - Do not claim another tool is slower or faster without the command, the version and the
   machine used for both.
 - Keep the method in `README.md` in sync with `cmd/bench`.
