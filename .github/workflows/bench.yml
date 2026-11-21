@@ -82,12 +82,14 @@ jobs:
         env:
           RUNS: ${{ inputs.runs || '5' }}
           CORPUS: ${{ matrix.corpus }}
-        run: go run ./cmd/bench -only "$CORPUS" -runs "$RUNS" -out results
+        # The summary is written once, by the last job, from all the results.
+        run: go run ./cmd/bench -only "$CORPUS" -runs "$RUNS" -out results -summary=false
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: results-${{ matrix.corpus }}
           path: results/*.json
           if-no-files-found: error
+          retention-days: 1 # only handed to the summary job
 
   report:
     name: Summary
