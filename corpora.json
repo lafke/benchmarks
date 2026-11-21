@@ -120,6 +120,125 @@
           "xxe": "sast:py/xxe"
         }
       }
+    },
+    {
+      "name": "benchproctor-go",
+      "kind": "cwe-csv",
+      "repo": "https://github.com/TheAuditorTool/BenchProctor.git",
+      "rev": "23a5f7bde67d4ee9f7ebf0994084cb414c6cc2fa",
+      "path": "Benchmarks/standalone/go",
+      "sparse": [
+        "Benchmarks/standalone/go"
+      ],
+      "command": [
+        "sast"
+      ],
+      "skip_categories": [
+        "null_deref",
+        "intoverflow"
+      ]
+    },
+    {
+      "name": "benchproctor-java",
+      "kind": "cwe-csv",
+      "repo": "https://github.com/TheAuditorTool/BenchProctor.git",
+      "rev": "23a5f7bde67d4ee9f7ebf0994084cb414c6cc2fa",
+      "path": "Benchmarks/standalone/java",
+      "sparse": [
+        "Benchmarks/standalone/java"
+      ],
+      "command": [
+        "sast"
+      ],
+      "skip_categories": [
+        "null_deref",
+        "intoverflow"
+      ]
+    },
+    {
+      "name": "benchproctor-javascript",
+      "kind": "cwe-csv",
+      "repo": "https://github.com/TheAuditorTool/BenchProctor.git",
+      "rev": "23a5f7bde67d4ee9f7ebf0994084cb414c6cc2fa",
+      "path": "Benchmarks/standalone/javascript",
+      "sparse": [
+        "Benchmarks/standalone/javascript"
+      ],
+      "command": [
+        "sast"
+      ],
+      "skip_categories": [
+        "null_deref",
+        "intoverflow"
+      ]
+    },
+    {
+      "name": "benchproctor-php",
+      "kind": "cwe-csv",
+      "repo": "https://github.com/TheAuditorTool/BenchProctor.git",
+      "rev": "23a5f7bde67d4ee9f7ebf0994084cb414c6cc2fa",
+      "path": "Benchmarks/standalone/php",
+      "sparse": [
+        "Benchmarks/standalone/php"
+      ],
+      "command": [
+        "sast"
+      ],
+      "skip_categories": [
+        "null_deref",
+        "intoverflow"
+      ]
+    },
+    {
+      "name": "benchproctor-python",
+      "kind": "cwe-csv",
+      "repo": "https://github.com/TheAuditorTool/BenchProctor.git",
+      "rev": "23a5f7bde67d4ee9f7ebf0994084cb414c6cc2fa",
+      "path": "Benchmarks/standalone/python",
+      "sparse": [
+        "Benchmarks/standalone/python"
+      ],
+      "command": [
+        "sast"
+      ],
+      "skip_categories": [
+        "null_deref",
+        "intoverflow"
+      ]
+    },
+    {
+      "name": "benchproctor-ruby",
+      "kind": "cwe-csv",
+      "repo": "https://github.com/TheAuditorTool/BenchProctor.git",
+      "rev": "23a5f7bde67d4ee9f7ebf0994084cb414c6cc2fa",
+      "path": "Benchmarks/standalone/ruby",
+      "sparse": [
+        "Benchmarks/standalone/ruby"
+      ],
+      "command": [
+        "sast"
+      ],
+      "skip_categories": [
+        "null_deref",
+        "intoverflow"
+      ]
+    },
+    {
+      "name": "benchproctor-typescript",
+      "kind": "cwe-csv",
+      "repo": "https://github.com/TheAuditorTool/BenchProctor.git",
+      "rev": "23a5f7bde67d4ee9f7ebf0994084cb414c6cc2fa",
+      "path": "Benchmarks/standalone/typescript",
+      "sparse": [
+        "Benchmarks/standalone/typescript"
+      ],
+      "command": [
+        "sast"
+      ],
+      "skip_categories": [
+        "null_deref",
+        "intoverflow"
+      ]
     }
   ]
 }
