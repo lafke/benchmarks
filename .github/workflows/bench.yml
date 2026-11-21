@@ -32,6 +32,7 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: go.mod
+          cache: false # no dependencies to cache
       - name: Install lafke and the engine
         env:
           GH_TOKEN: ${{ github.token }} # the installer verifies the release attestation with gh
