@@ -154,7 +154,7 @@ func run() error {
 		return err
 	}
 	fmt.Println(path)
-	return nil
+	return writeSummary(res)
 }
 
 func output(name string, args ...string) (string, error) {
