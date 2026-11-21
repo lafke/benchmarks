@@ -79,6 +79,7 @@ var suites = map[string]suite{
 	"owasp-csv": owaspSuite{},
 	"cwe-csv":   cweCSVSuite{},
 	"juliet":    julietSuite{},
+	"vulnbench": vulnbenchSuite{},
 }
 
 // env is what the suites share.

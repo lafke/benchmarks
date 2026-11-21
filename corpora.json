@@ -249,6 +249,18 @@
         "null_deref",
         "intoverflow"
       ]
+    },
+    {
+      "name": "snyk-vulnbench",
+      "kind": "vulnbench",
+      "repo": "https://github.com/snyk-labs/snyk-vulnbench.git",
+      "rev": "385a3751046b62f30b61f9dfadb26d6d7dfc52aa",
+      "sparse": [
+        "fixtures"
+      ],
+      "command": [
+        "sast"
+      ]
     }
   ]
 }
