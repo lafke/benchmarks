@@ -122,6 +122,16 @@
       }
     },
     {
+      "name": "juliet-java",
+      "kind": "juliet",
+      "repo": "https://github.com/find-sec-bugs/juliet-test-suite.git",
+      "rev": "b2c6df3733e2176fe7097e4784895c6891632b4c",
+      "path": "src",
+      "command": [
+        "sast"
+      ]
+    },
+    {
       "name": "benchproctor-go",
       "kind": "cwe-csv",
       "repo": "https://github.com/TheAuditorTool/BenchProctor.git",
