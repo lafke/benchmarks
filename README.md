@@ -22,6 +22,19 @@ go run ./cmd/bench -lafke ./lafke           # a specific executable
 The program clones each corpus into `.cache/` at the revision in [`corpora.json`](corpora.json),
 fails if the checkout does not match it, and writes a JSON result to `results/`.
 
+## Results in GitHub Actions
+
+The [Benchmark workflow](.github/workflows/bench.yml) runs the same program on a GitHub-hosted
+runner every Monday, on pushes that change it, and on demand (**Actions > Benchmark > Run
+workflow**, where you can set the number of runs and the `lafke` version). Open a run to see:
+
+- a table of median, minimum and standard deviation of the wall time, and the peak memory, in
+  the **job summary**,
+- the JSON with every sample, as the `benchmark-results` **artifact**.
+
+Shared runners are noisy, so compare runs of the same workflow with each other, not with your
+own machine.
+
 ## Corpora
 
 | Name | Source | Revision | Analyzed path |
