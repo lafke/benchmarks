@@ -5,6 +5,13 @@ import (
 	"slices"
 )
 
+type stats struct {
+	Min    float64 `json:"min"`
+	Median float64 `json:"median"`
+	Mean   float64 `json:"mean"`
+	Stdev  float64 `json:"stdev"`
+}
+
 func summarize(v []float64) stats {
 	s := slices.Sorted(slices.Values(v))
 	n := len(s)

@@ -1,7 +1,73 @@
 {
+  "cwe_groups": [
+    [
+      89,
+      564,
+      943
+    ],
+    [
+      79,
+      80,
+      87
+    ],
+    [
+      22,
+      23,
+      36,
+      73
+    ],
+    [
+      78,
+      77,
+      88
+    ],
+    [
+      90
+    ],
+    [
+      643
+    ],
+    [
+      327,
+      326,
+      328,
+      916
+    ],
+    [
+      330,
+      338
+    ],
+    [
+      614,
+      1004
+    ],
+    [
+      601
+    ],
+    [
+      502
+    ],
+    [
+      94,
+      95,
+      96
+    ],
+    [
+      611,
+      776,
+      827
+    ],
+    [
+      501
+    ],
+    [
+      918
+    ]
+  ],
   "corpora": [
     {
       "name": "owasp-benchmark-java",
+      "kind": "owasp-csv",
       "repo": "https://github.com/OWASP-Benchmark/BenchmarkJava.git",
       "rev": "acc50f20ec449e2b977a7c409fa8175491657cba",
       "path": "src/main",
@@ -27,6 +93,7 @@
     },
     {
       "name": "owasp-benchmark-python",
+      "kind": "owasp-csv",
       "repo": "https://github.com/OWASP-Benchmark/BenchmarkPython.git",
       "rev": "f1291485808b66e20ddb6b01b10dc71b3df8c8ba",
       "path": ".",
