@@ -16,8 +16,10 @@ import (
 type julietSuite struct{}
 
 var (
-	julietDir    = regexp.MustCompile(`(?:^|/)testcases/CWE(\d+)_[^/]*/`)
-	julietShard  = regexp.MustCompile(`^s\d+$`)
+	julietDir   = regexp.MustCompile(`(?:^|/)testcases/CWE(\d+)_[^/]*/`)
+	julietShard = regexp.MustCompile(`^s\d+$`)
+	// julietCase strips what tells the files of one test case apart: 54a, 54b, 81_bad, 81_goodB2G.
+	julietCase   = regexp.MustCompile(`^(.*_\d\d)(?:[a-z]|_(?:base|bad|good\w*))?\.java$`)
 	julietMethod = regexp.MustCompile(`^\s*(?:public|private|protected)\s+(?:static\s+)?(?:final\s+)?[\w<>\[\],.\s]*?\b(bad\w*|good\w*)\s*\(`)
 )
 
@@ -119,6 +121,13 @@ func (julietSuite) score(e *env, c *corpus, units []unit, res map[string]*unitRe
 		}
 	}
 	srcRoot := filepath.Join(e.cache, c.Name, c.Path)
+	// A test case can be spread over several files: a flow variant 54a to 54e, or the base,
+	// bad and good classes of variant 81. They are one case, so it is scored as one.
+	type testCase struct {
+		cwe                              int
+		hasBad, hasGood, hitBad, hitGood bool
+	}
+	cases := map[string]*testCase{}
 	t := newTally(true)
 	t.acc.AnalysisIncomplete = incomplete
 	root := filepath.Join(srcRoot, "testcases")
@@ -150,29 +159,37 @@ func (julietSuite) score(e *env, c *corpus, units []unit, res map[string]*unitRe
 			t.acc.Excluded++
 			return nil
 		}
-		var hitBad, hitGood bool
+		key := julietCase.ReplaceAllString(rel, "$1")
+		c := cases[key]
+		if c == nil {
+			c = &testCase{cwe: cwe}
+			cases[key] = c
+		}
+		c.hasBad, c.hasGood = c.hasBad || hasBad, c.hasGood || hasGood
 		for _, f := range byFile[rel] {
 			if !e.groups.matchAny(cwe, f.CWEs) {
 				continue
 			}
 			for _, s := range spans {
 				if f.Line >= s.start && f.Line <= s.end {
-					hitBad = hitBad || s.bad
-					hitGood = hitGood || !s.bad
+					c.hitBad = c.hitBad || s.bad
+					c.hitGood = c.hitGood || !s.bad
 				}
 			}
-		}
-		cat := "CWE" + m[1]
-		if hasBad {
-			t.add(cat, true, hitBad)
-		}
-		if hasGood {
-			t.add(cat, false, hitGood)
 		}
 		return nil
 	})
 	if err != nil {
 		return nil, err
+	}
+	for _, c := range cases {
+		cat := "CWE" + strconv.Itoa(c.cwe)
+		if c.hasBad {
+			t.add(cat, true, c.hitBad)
+		}
+		if c.hasGood {
+			t.add(cat, false, c.hitGood)
+		}
 	}
 	return t.result(), nil
 }

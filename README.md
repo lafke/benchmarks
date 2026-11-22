@@ -30,7 +30,7 @@ already at its revision is not fetched again.
 | Corpus | Source | Cases | Scored how |
 | --- | --- | --- | --- |
 | `owasp-benchmark-java`, `owasp-benchmark-python` | [OWASP BenchmarkJava](https://github.com/OWASP-Benchmark/BenchmarkJava), [BenchmarkPython](https://github.com/OWASP-Benchmark/BenchmarkPython) | 2,740 and 1,230 | the rule of the case's category reports in its file |
-| `juliet-java` | [NIST Juliet Test Suite](https://samate.nist.gov/SARD/test-suites/111), Java, from a [copy](https://github.com/find-sec-bugs/juliet-test-suite) | the bad and good parts of the files whose CWE is in scope | a finding with the CWE inside a `bad*` or `good*` method |
+| `juliet-java` | [NIST Juliet Test Suite](https://samate.nist.gov/SARD/test-suites/111), Java, from a [copy](https://github.com/find-sec-bugs/juliet-test-suite) | the bad and good parts of the test cases whose CWE is in scope | a finding with the CWE inside a `bad*` or `good*` method |
 | `benchproctor-<language>` | [BenchProctor](https://github.com/TheAuditorTool/BenchProctor), standalone cases of Go, Java, JavaScript, PHP, Python, Ruby and TypeScript | 40 cases per category and framework | a finding with the case's CWE in its file |
 | `snyk-vulnbench` | [Snyk VulnBench](https://github.com/snyk-labs/snyk-vulnbench), fixtures with an attacker-reachable answer key | 108 vulnerabilities | a finding of the type near the source-to-sink flow |
 
@@ -67,9 +67,10 @@ number of `sast:analysis-incomplete` findings, and of units where lafke did not 
   (CWE-327 for every weak cipher or hash, CWE-338 for weak randomness), so exact matching would
   count a correct finding as a miss. **The numbers are therefore not comparable with scores from the
   official scorer.**
-- **Juliet**: a file has a bad part (methods named `bad*`) and a good part (`good*`). A finding with
-  the CWE of the file's directory inside a bad method makes the vulnerable case a hit; inside a good
-  method it is a false positive for the safe case. Only CWEs in a group are scored; the other
+- **Juliet**: a test case has a bad part (methods named `bad*`) and a good part (`good*`). A case can
+  be spread over several files (flow variant 54a to 54e, or the base, bad and good classes of 81);
+  its files are scored as one. A finding with the CWE of the directory inside a bad method makes the
+  vulnerable case a hit; inside a good method it is a false positive for the safe case. Only CWEs in a group are scored; the other
   directories are counted as excluded. Each CWE directory (or `sNN` subdirectory) is a unit, so
   they run in parallel.
 - **VulnBench**: this is lafke's own reading of the answer key, not the VulnBench scorer. A
