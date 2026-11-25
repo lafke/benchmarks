@@ -12,6 +12,9 @@ on:
       corpora:
         description: Comma-separated corpus names to run (empty for all)
         default: ""
+  # Sent by lafke/engine-releases once a new engine release is published.
+  repository_dispatch:
+    types: [engine-release]
   schedule:
     - cron: "0 3 * * 1" # Mondays, 03:00 UTC
   push:
@@ -68,11 +71,21 @@ jobs:
           GH_TOKEN: ${{ github.token }} # the installer verifies the release attestation with gh
           INSTALL_DIR: ${{ runner.temp }}/lafke-bin
           VERSION: ${{ inputs.lafke-version }}
+          ENGINE_TAG: ${{ github.event.client_payload.tag }} # empty unless an engine release started this run
         run: |
           set -euo pipefail
           mkdir -p "$INSTALL_DIR"
           curl -fsSL https://lafke.sh/install | sh
           echo "$INSTALL_DIR" >> "$GITHUB_PATH"
+          if [ -n "$ENGINE_TAG" ]; then
+            case "$ENGINE_TAG" in
+              v[0-9]*.[0-9]*.[0-9]*) ;;
+              *) echo "invalid engine tag: $ENGINE_TAG" >&2; exit 1 ;;
+            esac
+            # Measure the release that triggered the run, not whatever is newest by now.
+            "$INSTALL_DIR/lafke" engine install --version "$ENGINE_TAG"
+            echo "LAFKE_ENGINE_VERSION=$ENGINE_TAG" >> "$GITHUB_ENV"
+          fi
       # The corpora are pinned to a commit, so what is fetched only changes with corpora.json.
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
