@@ -32,10 +32,11 @@ already at its revision is not fetched again.
 | `owasp-benchmark-java`, `owasp-benchmark-python` | [OWASP BenchmarkJava](https://github.com/OWASP-Benchmark/BenchmarkJava), [BenchmarkPython](https://github.com/OWASP-Benchmark/BenchmarkPython) | 2,740 and 1,230 | the rule of the case's category reports in its file |
 | `juliet-java` | [NIST Juliet Test Suite](https://samate.nist.gov/SARD/test-suites/111), Java, from a [copy](https://github.com/find-sec-bugs/juliet-test-suite) | the bad and good parts of the test cases whose CWE is in scope | a finding with the CWE inside a `bad*` or `good*` method |
 | `benchproctor-<language>` | [BenchProctor](https://github.com/TheAuditorTool/BenchProctor), standalone cases of Go, Java, JavaScript, PHP, Python, Ruby and TypeScript | 40 cases per category and framework | a finding with the case's CWE in its file |
+| `kics-iac` | [Checkmarx KICS](https://github.com/Checkmarx/kics), the test files of its queries for Terraform, Dockerfile, Compose, Kubernetes and GitHub Actions | one case per positive or negative file of the queries mapped to a lafke rule | a finding of a mapped rule in the case's file |
 | `snyk-vulnbench` | [Snyk VulnBench](https://github.com/snyk-labs/snyk-vulnbench), fixtures with an attacker-reachable answer key | 108 vulnerabilities | a finding of the type near the source-to-sink flow |
 
 The corpora are downloaded when you run the program. Their source is not copied here and keeps its
-own license: OWASP Benchmark is GPL, BenchProctor and VulnBench are Apache-2.0 and Juliet is a NIST work.
+own license: OWASP Benchmark is GPL, BenchProctor, KICS and VulnBench are Apache-2.0 and Juliet is a NIST work.
 
 ## Accuracy
 
@@ -73,6 +74,16 @@ number of `sast:analysis-incomplete` findings, and of units where lafke did not 
   vulnerable case a hit; inside a good method it is a false positive for the safe case. Only CWEs in a group are scored; the other
   directories are counted as excluded. Each CWE directory (or `sNN` subdirectory) is a unit, so
   they run in parallel.
+- **KICS**: this is lafke's own reading of the query tests, not a KICS score. KICS has far more
+  queries than lafke has `sast:iac/*` rules, so only the queries that `queries` in `corpora.json`
+  maps to a lafke rule are scored; every other query is left out, and the scores say nothing
+  about it. A positive file (listed in the query's `positive_expected_result.json`) is a hit when
+  a mapped rule reports a finding in it, and a negative file is a false positive when one does.
+  The reported line is not compared. Each case is copied into a directory of its own under
+  `.cache/` and named as lafke finds it (`Dockerfile`, `docker-compose.yml`,
+  `.github/workflows/`), because KICS names them `positive1.dockerfile` and so on. A case that is
+  a directory, or in another format (JSON, Bicep), is counted as excluded. The mapping is a
+  judgment of which queries mean the same weakness as a rule, so another mapping gives other numbers.
 - **VulnBench**: this is lafke's own reading of the answer key, not the VulnBench scorer. A
   vulnerability is found when a finding whose rule name equals its type (or an alias) lies within
   3 lines of a location of its source-to-sink flow. The key names no safe cases, so only recall is
@@ -86,6 +97,8 @@ CWEs that are in a group.
 
 - Most suites are synthetic, and their ratio of vulnerable to safe cases differs from a real
   repository. The scores do not predict accuracy on an arbitrary application.
+- The KICS cases are minimal files for one query each, and lafke may report a different, correct
+  finding in a negative file. Only the mapped rule counts there.
 - Lafke's analysis is developed against suites like these, so this is not a held-out evaluation.
 - A score only means something next to another tool that ran on the same revisions and the same
   cases, scored the same way.

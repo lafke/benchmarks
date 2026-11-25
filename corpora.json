@@ -261,6 +261,269 @@
       "command": [
         "sast"
       ]
+    },
+    {
+      "name": "kics-iac",
+      "kind": "kics",
+      "repo": "https://github.com/Checkmarx/kics.git",
+      "rev": "a572efb2d9fe3799c5190376f6e1351ad577bb22",
+      "sparse": [
+        "assets/queries"
+      ],
+      "command": [
+        "sast"
+      ],
+      "queries": {
+        "cicd/github/run_block_injection": [
+          "sast:iac/actions-script-injection"
+        ],
+        "cicd/github/script_block_injection": [
+          "sast:iac/actions-script-injection"
+        ],
+        "cicd/github/unpinned_actions_full_length_commit_sha": [
+          "sast:iac/actions-unpinned"
+        ],
+        "cicd/github/unsecured_commands": [
+          "sast:iac/actions-unsecure-commands"
+        ],
+        "dockerCompose/default_seccomp_profile_disabled": [
+          "sast:iac/seccomp-unconfined"
+        ],
+        "dockerCompose/docker_socket_mounted_in_container": [
+          "sast:iac/docker-socket-mount"
+        ],
+        "dockerCompose/host_namespace_is_shared": [
+          "sast:iac/host-namespace"
+        ],
+        "dockerCompose/privileged_containers_enabled": [
+          "sast:iac/privileged-container"
+        ],
+        "dockerCompose/shared_host_ipc_namespace": [
+          "sast:iac/host-namespace"
+        ],
+        "dockerCompose/shared_host_network_namespace": [
+          "sast:iac/host-namespace"
+        ],
+        "dockerCompose/shared_host_user_namespace": [
+          "sast:iac/host-namespace"
+        ],
+        "dockerCompose/volume_has_sensitive_host_directory": [
+          "sast:iac/host-path-mount"
+        ],
+        "dockerfile/exposing_port_22": [
+          "sast:iac/docker-ssh-port"
+        ],
+        "dockerfile/image_version_not_explicit": [
+          "sast:iac/docker-unpinned-image"
+        ],
+        "dockerfile/image_version_using_latest": [
+          "sast:iac/docker-unpinned-image"
+        ],
+        "dockerfile/last_user_is_root": [
+          "sast:iac/docker-root-user"
+        ],
+        "dockerfile/missing_user_instruction": [
+          "sast:iac/docker-root-user"
+        ],
+        "k8s/container_is_privileged": [
+          "sast:iac/privileged-container"
+        ],
+        "k8s/containers_running_as_root": [
+          "sast:iac/run-as-root"
+        ],
+        "k8s/containers_with_added_capabilities": [
+          "sast:iac/dangerous-capability"
+        ],
+        "k8s/containers_with_sys_admin_capabilities": [
+          "sast:iac/dangerous-capability"
+        ],
+        "k8s/docker_daemon_socket_is_exposed_to_containers": [
+          "sast:iac/docker-socket-mount"
+        ],
+        "k8s/non_kube_system_pod_with_host_mount": [
+          "sast:iac/host-path-mount"
+        ],
+        "k8s/privilege_escalation_allowed": [
+          "sast:iac/privilege-escalation"
+        ],
+        "k8s/psp_allows_privilege_escalation": [
+          "sast:iac/privilege-escalation"
+        ],
+        "k8s/psp_allows_sharing_host_ipc": [
+          "sast:iac/host-namespace"
+        ],
+        "k8s/psp_allows_sharing_host_pid": [
+          "sast:iac/host-namespace"
+        ],
+        "k8s/psp_containers_share_host_network_namespace": [
+          "sast:iac/host-namespace"
+        ],
+        "k8s/psp_set_to_privileged": [
+          "sast:iac/privileged-container"
+        ],
+        "k8s/psp_with_unrestricted_access_to_host_path": [
+          "sast:iac/host-path-mount"
+        ],
+        "k8s/rbac_wildcard_in_rule": [
+          "sast:iac/rbac-wildcard"
+        ],
+        "k8s/root_container_not_mounted_as_read_only": [
+          "sast:iac/writable-root-filesystem"
+        ],
+        "k8s/seccomp_profile_is_not_configured": [
+          "sast:iac/seccomp-unconfined"
+        ],
+        "k8s/shared_host_ipc_namespace": [
+          "sast:iac/host-namespace"
+        ],
+        "k8s/shared_host_network_namespace": [
+          "sast:iac/host-namespace"
+        ],
+        "k8s/shared_host_pid_namespace": [
+          "sast:iac/host-namespace"
+        ],
+        "k8s/workload_mounting_with_sensitive_os_directory": [
+          "sast:iac/host-path-mount"
+        ],
+        "terraform/alicloud/disk_encryption_disabled": [
+          "sast:iac/unencrypted-storage"
+        ],
+        "terraform/aws/ami_not_encrypted": [
+          "sast:iac/unencrypted-storage"
+        ],
+        "terraform/aws/aurora_with_disabled_at_rest_encryption": [
+          "sast:iac/unencrypted-storage"
+        ],
+        "terraform/aws/block_device_is_not_encrypted": [
+          "sast:iac/unencrypted-storage"
+        ],
+        "terraform/aws/cloudfront_viewer_protocol_policy_allows_http": [
+          "sast:iac/insecure-transport"
+        ],
+        "terraform/aws/cloudfront_without_minimum_protocol_tls_1.2": [
+          "sast:iac/insecure-transport"
+        ],
+        "terraform/aws/cloudtrail_log_files_s3_bucket_is_publicly_accessible": [
+          "sast:iac/public-bucket"
+        ],
+        "terraform/aws/db_instance_storage_not_encrypted": [
+          "sast:iac/unencrypted-storage"
+        ],
+        "terraform/aws/docdb_cluster_not_encrypted": [
+          "sast:iac/unencrypted-storage"
+        ],
+        "terraform/aws/ebs_volume_encryption_disabled": [
+          "sast:iac/unencrypted-storage"
+        ],
+        "terraform/aws/ebs_volume_snapshot_not_encrypted": [
+          "sast:iac/unencrypted-storage"
+        ],
+        "terraform/aws/efs_not_encrypted": [
+          "sast:iac/unencrypted-storage"
+        ],
+        "terraform/aws/elasticache_replication_group_not_encrypted_at_rest": [
+          "sast:iac/unencrypted-storage"
+        ],
+        "terraform/aws/hardcoded_aws_access_key_in_lambda": [
+          "sast:secrets/aws-access-key"
+        ],
+        "terraform/aws/http_port_open": [
+          "sast:iac/open-ingress"
+        ],
+        "terraform/aws/iam_policies_with_full_privileges": [
+          "sast:iac/iam-wildcard"
+        ],
+        "terraform/aws/iam_policy_grants_full_permissions": [
+          "sast:iac/iam-wildcard"
+        ],
+        "terraform/aws/instance_uses_metadata_service_IMDSv1": [
+          "sast:iac/imds-v1"
+        ],
+        "terraform/aws/neptune_database_cluster_encryption_disabled": [
+          "sast:iac/unencrypted-storage"
+        ],
+        "terraform/aws/rds_database_cluster_not_encrypted": [
+          "sast:iac/unencrypted-storage"
+        ],
+        "terraform/aws/rds_db_instance_publicly_accessible": [
+          "sast:iac/public-database"
+        ],
+        "terraform/aws/rds_storage_not_encrypted": [
+          "sast:iac/unencrypted-storage"
+        ],
+        "terraform/aws/redshift_not_encrypted": [
+          "sast:iac/unencrypted-storage"
+        ],
+        "terraform/aws/redshift_publicly_accessible": [
+          "sast:iac/public-database"
+        ],
+        "terraform/aws/remote_desktop_port_open_to_internet": [
+          "sast:iac/open-ingress"
+        ],
+        "terraform/aws/s3_bucket_access_to_any_principal": [
+          "sast:iac/public-bucket"
+        ],
+        "terraform/aws/s3_bucket_acl_allows_read_or_write_to_all_users": [
+          "sast:iac/public-bucket"
+        ],
+        "terraform/aws/s3_bucket_acl_allows_read_to_any_authenticated_user": [
+          "sast:iac/public-bucket"
+        ],
+        "terraform/aws/s3_bucket_allows_public_acl": [
+          "sast:iac/public-bucket"
+        ],
+        "terraform/aws/s3_bucket_policy_accepts_http_requests": [
+          "sast:iac/insecure-transport"
+        ],
+        "terraform/aws/s3_bucket_public_acl_overridden_by_public_access_block": [
+          "sast:iac/public-bucket"
+        ],
+        "terraform/aws/s3_bucket_with_public_policy": [
+          "sast:iac/public-bucket"
+        ],
+        "terraform/aws/s3_bucket_without_ignore_public_acl": [
+          "sast:iac/public-bucket"
+        ],
+        "terraform/aws/s3_bucket_without_restriction_of_public_bucket": [
+          "sast:iac/public-bucket"
+        ],
+        "terraform/aws/security_group_with_unrestricted_access_to_ssh": [
+          "sast:iac/open-ingress"
+        ],
+        "terraform/aws/sensitive_port_is_exposed_to_entire_network": [
+          "sast:iac/open-ingress"
+        ],
+        "terraform/aws/sql_analysis_services_port_2383_is_publicly_accessible": [
+          "sast:iac/open-ingress"
+        ],
+        "terraform/aws/unknown_port_exposed_to_internet": [
+          "sast:iac/open-ingress"
+        ],
+        "terraform/aws/unrestricted_security_group_ingress": [
+          "sast:iac/open-ingress"
+        ],
+        "terraform/azure/rdp_is_exposed_to_the_internet": [
+          "sast:iac/open-ingress"
+        ],
+        "terraform/azure/ssh_is_exposed_to_the_internet": [
+          "sast:iac/open-ingress"
+        ],
+        "terraform/azure/storage_account_not_forcing_https": [
+          "sast:iac/insecure-transport"
+        ],
+        "terraform/gcp/cloud_storage_anonymous_or_publicly_accessible": [
+          "sast:iac/public-iam"
+        ],
+        "terraform/gcp/cloud_storage_bucket_is_publicly_accessible": [
+          "sast:iac/public-iam"
+        ],
+        "terraform/gcp/rdp_access_is_not_restricted": [
+          "sast:iac/open-ingress"
+        ],
+        "terraform/gcp/ssh_access_is_not_restricted": [
+          "sast:iac/open-ingress"
+        ]
+      }
     }
   ]
 }

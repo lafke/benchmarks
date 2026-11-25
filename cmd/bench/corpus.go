@@ -21,6 +21,9 @@ type corpus struct {
 
 	Labels         *labels  `json:"labels,omitempty"`          // owasp-csv
 	SkipCategories []string `json:"skip_categories,omitempty"` // cwe-csv
+	// Queries maps a KICS query directory (relative to assets/queries) to the lafke rules that
+	// count as finding it. A query that is not listed is not scored.
+	Queries map[string][]string `json:"queries,omitempty"` // kics
 }
 
 type corporaFile struct {
@@ -80,6 +83,7 @@ var suites = map[string]suite{
 	"cwe-csv":   cweCSVSuite{},
 	"juliet":    julietSuite{},
 	"vulnbench": vulnbenchSuite{},
+	"kics":      kicsSuite{},
 }
 
 // env is what the suites share.

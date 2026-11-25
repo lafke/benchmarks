@@ -107,7 +107,7 @@ func summaryMarkdown(rs []result) string {
 	}
 	fmt.Fprintf(&b, "\n</details>\n")
 
-	fmt.Fprintf(&b, "\nThe corpora are synthetic or curated, and lafke is developed against suites like them, so these scores do not predict accuracy on an arbitrary application. BenchProctor is scored with CWE groups and VulnBench with lafke's own reading, so neither matches the official scores.\n")
+	fmt.Fprintf(&b, "\nThe corpora are synthetic or curated, and lafke is developed against suites like them, so these scores do not predict accuracy on an arbitrary application. BenchProctor is scored with CWE groups, and VulnBench and KICS with lafke's own reading, so none of them matches an official score.\n")
 	return b.String()
 }
 
