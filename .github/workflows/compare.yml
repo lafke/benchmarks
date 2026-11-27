@@ -1,0 +1,167 @@
+name: Compare engines
+
+# Runs the benchmark again with two engine releases and compares them. Nothing is read from
+# earlier runs.
+on:
+  workflow_dispatch:
+    inputs:
+      base:
+        description: Engine release tag to start from, such as v0.1.2, or "latest" (the newest engine that fits the lafke release)
+        default: ""
+      head:
+        description: Engine release tag to compare to, or "latest". Give base or head; the other one defaults to the latest engine
+        default: ""
+      runs:
+        description: Measured runs for corpora that are timed
+        default: "5"
+      lafke-version:
+        description: lafke release tag to run both engines with, such as v0.1.0 (empty for the latest)
+        default: ""
+      corpora:
+        description: Comma-separated corpus names to run (empty for all)
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    name: Pick the engines
+    runs-on: ubuntu-latest
+    outputs:
+      base: ${{ steps.plan.outputs.base }}
+      head: ${{ steps.plan.outputs.head }}
+      corpora: ${{ steps.plan.outputs.corpora }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: false
+      - id: plan
+        env:
+          GH_TOKEN: ${{ github.token }} # the installer verifies the release attestation with gh
+          INSTALL_DIR: ${{ runner.temp }}/lafke-bin
+          VERSION: ${{ inputs.lafke-version }}
+          BASE: ${{ inputs.base }}
+          HEAD_REF: ${{ inputs.head }}
+          SELECTED: ${{ inputs.corpora }}
+        run: |
+          set -euo pipefail
+          norm() { # 0.1.2 and v0.1.2 both name the tag v0.1.2
+            local v=$1
+            [[ "$v" =~ ^[0-9] ]] && v="v$v"
+            [[ "$v" =~ ^(v[0-9]+\.[0-9]+\.[0-9]+|latest)?$ ]] || { echo "not an engine tag such as v0.1.2, or latest: $1" >&2; exit 1; }
+            echo "$v"
+          }
+          BASE=$(norm "$BASE")
+          HEAD_REF=$(norm "$HEAD_REF")
+          if [ -z "$BASE" ] && [ -z "$HEAD_REF" ]; then
+            echo "give base or head (an engine tag); the other one defaults to the latest engine" >&2
+            exit 1
+          fi
+          if [ "$BASE" = latest ] && [ "$HEAD_REF" = latest ]; then
+            echo "base and head are both latest: give an engine tag for one side" >&2
+            exit 1
+          fi
+          if [ -z "$BASE" ] || [ "$BASE" = latest ] || [ -z "$HEAD_REF" ] || [ "$HEAD_REF" = latest ]; then
+            mkdir -p "$INSTALL_DIR"
+            curl -fsSL https://lafke.sh/install | sh
+            "$INSTALL_DIR/lafke" engine install
+            latest=$("$INSTALL_DIR/lafke" engine status | sed -n 's/^engine:.*(\(v[0-9][0-9.]*\))$/\1/p')
+            [ -n "$latest" ] || { echo "could not tell which engine is the latest" >&2; exit 1; }
+            if [ -z "$BASE" ] || [ "$BASE" = latest ]; then BASE=$latest; fi
+            if [ -z "$HEAD_REF" ] || [ "$HEAD_REF" = latest ]; then HEAD_REF=$latest; fi
+          fi
+          if [ "$BASE" = "$HEAD_REF" ]; then
+            echo "base and head are the same engine ($BASE)" >&2
+            exit 1
+          fi
+          all=$(go run ./cmd/bench -list)
+          if [ -n "$SELECTED" ]; then
+            all=$(jq -c --arg s "$SELECTED" '[ .[] | select(. as $n | ($s | split(",") | map(gsub(" "; "")) | index($n))) ]' <<<"$all")
+          fi
+          {
+            echo "base=$BASE"
+            echo "head=$HEAD_REF"
+            echo "corpora=$all"
+          } >> "$GITHUB_OUTPUT"
+          echo "Comparing engine $BASE (base) with $HEAD_REF (head)" >> "$GITHUB_STEP_SUMMARY"
+
+  bench:
+    name: ${{ matrix.corpus }}
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false # one corpus failing must not hide the others
+      matrix:
+        corpus: ${{ fromJSON(needs.plan.outputs.corpora) }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+      INSTALL_DIR: ${{ runner.temp }}/lafke-bin
+      BASE: ${{ needs.plan.outputs.base }}
+      HEAD_REF: ${{ needs.plan.outputs.head }}
+      RUNS: ${{ inputs.runs || '5' }}
+      CORPUS: ${{ matrix.corpus }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: false
+      - name: Install lafke
+        env:
+          VERSION: ${{ inputs.lafke-version }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$INSTALL_DIR"
+          curl -fsSL https://lafke.sh/install | sh
+          echo "$INSTALL_DIR" >> "$GITHUB_PATH"
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .cache
+          key: corpora-${{ matrix.corpus }}-${{ hashFiles('corpora.json') }}
+      # Both engines run one after the other on this runner, so the timings share a machine.
+      - name: Run the benchmark with the base engine
+        run: |
+          set -euo pipefail
+          lafke engine install --version "$BASE"
+          LAFKE_ENGINE_VERSION="$BASE" go run ./cmd/bench -only "$CORPUS" -runs "$RUNS" -out "results/$BASE" -summary=false
+      - name: Run the benchmark with the head engine
+        run: |
+          set -euo pipefail
+          lafke engine install --version "$HEAD_REF"
+          LAFKE_ENGINE_VERSION="$HEAD_REF" go run ./cmd/bench -only "$CORPUS" -runs "$RUNS" -out "results/$HEAD_REF" -summary=false
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: compare-${{ matrix.corpus }}
+          path: results/
+          if-no-files-found: error
+          retention-days: 1 # only handed to the summary job
+
+  report:
+    name: Comparison
+    needs: [plan, bench]
+    if: ${{ !cancelled() && needs.bench.result != 'skipped' }}
+    runs-on: ubuntu-latest
+    env:
+      BASE: ${{ needs.plan.outputs.base }}
+      HEAD_REF: ${{ needs.plan.outputs.head }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: compare-*
+          merge-multiple: true # every corpus uploaded results/<engine>/*.json
+          path: results
+      - name: Compare
+        run: go run ./cmd/bench -base-dir "results/$BASE" -head-dir "results/$HEAD_REF"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: compare-results
+          path: results/

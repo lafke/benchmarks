@@ -25,6 +25,34 @@ The program fetches each corpus into `.cache/` at the revision in [`corpora.json
 fails if the checkout does not match it, and writes a JSON result to `results/`. A corpus that is
 already at its revision is not fetched again.
 
+### Compare two results
+
+Every result in `results/` has a number: `-history` lists them, oldest first, so a number keeps
+naming the same result when newer ones are added.
+
+```sh
+go run ./cmd/bench -history              # the numbers
+go run ./cmd/bench -base 12              # result 12 against the latest result
+go run ./cmd/bench -head 12              # the latest result as base, against result 12
+go run ./cmd/bench -base 12 -head 15     # two given results
+```
+
+At least one of `-base` and `-head` is required; the one you leave out is the latest result. Naming
+`latest` for both, or the same result twice, is an error. The comparison prints the change in TP,
+FP, FN, TN, recall, precision, F1 and J, and in median time and memory where both results have
+them, for the corpora both results hold. Timings only compare when both come from the same
+machine, and a corpus at a different revision is flagged because it scores other cases.
+
+In GitHub Actions, use **Actions > Compare engines > Run workflow**. It runs the benchmark again
+with two engine releases and compares them; it does not read earlier results. `base` and `head` are
+engine release tags such as `v0.1.2` (from [lafke/engine-releases](https://github.com/lafke/engine-releases));
+the one you leave empty is the latest engine that fits the `lafke` release. At least one is required,
+and `latest` for both, or the same engine twice, fails the workflow. You can also set the number of
+runs, the `lafke` version both engines run with, and the corpora. One job per corpus runs both engines
+one after the other on the same runner, so their timings share a machine, and a final job writes the
+comparison to the job summary. Locally, `-base-dir` and `-head-dir` compare two directories of
+results.
+
 ## Corpora
 
 | Corpus | Source | Cases | Scored how |

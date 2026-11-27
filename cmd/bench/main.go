@@ -75,6 +75,11 @@ func run() error {
 	out := flag.String("out", "results", "directory for the JSON result")
 	merge := flag.String("merge", "", "merge the JSON results in this directory into one job summary and exit")
 	summary := flag.Bool("summary", true, "append the results to the GitHub Actions job summary (GITHUB_STEP_SUMMARY)")
+	history := flag.Bool("history", false, "list the results in -out with the numbers -base and -head take, and exit")
+	baseRef := flag.String("base", "", "compare results: the result number to start from, or \"latest\"")
+	headRef := flag.String("head", "", "compare results: the result number to compare to, or \"latest\"; give -base or -head, the other one defaults to the latest result")
+	baseDir := flag.String("base-dir", "", "compare runs: a directory with the results of the run to start from (with -head-dir)")
+	headDir := flag.String("head-dir", "", "compare runs: a directory with the results of the run to compare to (with -base-dir)")
 	list := flag.Bool("list", false, "print the corpus names as a JSON array and exit")
 	var only multiFlag
 	flag.Var(&only, "only", "run only this corpus (repeatable)")
@@ -82,6 +87,18 @@ func run() error {
 
 	if *merge != "" {
 		return mergeResults(*merge)
+	}
+	if *history {
+		return printHistory(*out)
+	}
+	if *baseDir != "" || *headDir != "" {
+		if *baseDir == "" || *headDir == "" {
+			return fmt.Errorf("-base-dir and -head-dir go together")
+		}
+		return compareRuns(*baseDir, *headDir)
+	}
+	if *baseRef != "" || *headRef != "" {
+		return compareResults(*out, *baseRef, *headRef)
 	}
 	cfg, err := loadCorpora(*corporaFile)
 	if err != nil {
